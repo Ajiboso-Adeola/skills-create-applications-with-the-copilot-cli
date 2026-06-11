@@ -2,9 +2,10 @@
 
 // Simple Node.js CLI Calculator
 // Supported operations: addition (+), subtraction (-), multiplication (*), division (/)
+// Added: modulo (% or mod), exponentiation (^, pow), and square root (sqrt)
 // The tool accepts either:
 // 1) An expression string: "2+3" or "2 + 3"
-// 2) A verb and two operands: add 2 3  OR  + 2 3
+// 2) A verb and operands: add 2 3, + 2 3, sqrt 9
 
 const args = process.argv.slice(2);
 
@@ -14,16 +15,22 @@ Usage:
   node src/calculator.js "2 + 3"
   node src/calculator.js add 2 3
   node src/calculator.js + 2 3
+  node src/calculator.js sqrt 9
 
 Supported operations:
   add, +     : addition
   sub, -     : subtraction
   mul, *     : multiplication
   div, /     : division
+  mod, %     : modulo (remainder)
+  pow, ^     : exponentiation
+  sqrt       : square root (unary)
 
 Examples:
-  node src/calculator.js "10/2"
-  node src/calculator.js mul 4 5
+  node src/calculator.js "10%3"
+  node src/calculator.js mod 10 3
+  node src/calculator.js pow 2 8
+  node src/calculator.js sqrt 9
 `);
 }
 
@@ -32,9 +39,23 @@ function isNumeric(n) {
 }
 
 function compute(a, op, b) {
+  const opStr = String(op);
+  const opLower = opStr.toLowerCase();
+
+  // Unary: sqrt <value>
+  if (opLower === 'sqrt' || opStr === '√') {
+    const x = Number(a);
+    if (!isNumeric(x)) throw new Error('Operand must be a number');
+    if (x < 0) throw new Error('Square root of negative number');
+    return Math.sqrt(x);
+  }
+
   const x = Number(a);
   const y = Number(b);
-  switch (op) {
+
+  if (!isNumeric(x) || !isNumeric(y)) throw new Error('Operands must be numbers');
+
+  switch (opStr) {
     case '+':
     case 'add':
       return x + y;
@@ -48,6 +69,15 @@ function compute(a, op, b) {
     case 'div':
       if (y === 0) throw new Error('Division by zero');
       return x / y;
+    case '%':
+    case 'mod':
+      if (y === 0) throw new Error('Modulo by zero');
+      return x % y;
+    case '^':
+    case '**':
+    case 'pow':
+    case 'exp':
+      return Math.pow(x, y);
     default:
       throw new Error('Unsupported operation');
   }
@@ -65,7 +95,7 @@ if (require.main === module) {
     if (args.length === 1) {
       // Try to parse single-expression like "2+3" or "2 + 3"
       const expr = args[0].replace(/\s+/g, '');
-      const match = expr.match(/^(-?\d+(?:\.\d+)?)([+\-*/])(-?\d+(?:\.\d+)?)$/);
+      const match = expr.match(/^(-?\d+(?:\.\d+)?)([+\-*/%^])( -?\d+(?:\.\d+)?)$/);
       if (!match) {
         console.error('Invalid expression.');
         printHelp();
@@ -74,11 +104,23 @@ if (require.main === module) {
       a = match[1];
       op = match[2];
       b = match[3];
+    } else if (args.length === 2) {
+      // unary operations like: sqrt 9
+      const first = args[0].toLowerCase();
+      if (first === 'sqrt') {
+        op = first;
+        a = args[1];
+        b = undefined;
+      } else {
+        console.error('Invalid arguments.');
+        printHelp();
+        process.exit(1);
+      }
     } else if (args.length === 3) {
       // form: <op> <a> <b> or <a> <op> <b>
       // Decide which is operator by checking first arg
       const first = args[0].toLowerCase();
-      if (['add', 'sub', 'mul', 'div', '+', '-', '*', '/'].includes(first)) {
+      if (['add', 'sub', 'mul', 'div', 'mod', 'pow', 'exp', 'sqrt', '+', '-', '*', '/', '%', '^', '**'].includes(first)) {
         op = first;
         a = args[1];
         b = args[2];
@@ -94,7 +136,8 @@ if (require.main === module) {
       process.exit(1);
     }
 
-    if (!isNumeric(a) || !isNumeric(b)) {
+    // For unary sqrt, compute will validate the single operand
+    if (op !== 'sqrt' && !isNumeric(a) || (b !== undefined && !isNumeric(b))) {
       console.error('Operands must be numbers.');
       process.exit(1);
     }
