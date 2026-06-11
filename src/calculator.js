@@ -151,5 +151,26 @@ if (require.main === module) {
   }
 }
 
+// Utility functions added for direct use
+function modulo(a, b) {
+  if (!isNumeric(a) || !isNumeric(b)) throw new Error('Operands must be numbers');
+  const x = Number(a);
+  const y = Number(b);
+  if (y === 0) throw new Error('Modulo by zero');
+  return x % y;
+}
+
+function power(base, exponent) {
+  if (!isNumeric(base) || !isNumeric(exponent)) throw new Error('Operands must be numbers');
+  return Math.pow(Number(base), Number(exponent));
+}
+
+function squareRoot(n) {
+  if (!isNumeric(n)) throw new Error('Operand must be a number');
+  const x = Number(n);
+  if (x < 0) throw new Error('Square root of negative number');
+  return Math.sqrt(x);
+}
+
 // Export functions for unit testing
-module.exports = { compute, isNumeric };
+module.exports = { compute, isNumeric, modulo, power, squareRoot };
