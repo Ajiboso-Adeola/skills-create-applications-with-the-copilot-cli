@@ -108,5 +108,38 @@ if (require.main === module) {
   }
 }
 
+// Additional operations: modulo, power, squareRoot
+function modulo(a, b) {
+  const x = Number(a);
+  const y = Number(b);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    throw new TypeError('modulo: operands must be finite numbers');
+  }
+  if (y === 0) {
+    throw new RangeError('modulo: division by zero');
+  }
+  return x % y;
+}
+
+function power(base, exponent) {
+  const b = Number(base);
+  const e = Number(exponent);
+  if (!Number.isFinite(b) || !Number.isFinite(e)) {
+    throw new TypeError('power: operands must be finite numbers');
+  }
+  return Math.pow(b, e);
+}
+
+function squareRoot(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) {
+    throw new TypeError('squareRoot: operand must be a finite number');
+  }
+  if (v < 0) {
+    throw new RangeError('squareRoot: negative value');
+  }
+  return Math.sqrt(v);
+}
+
 // Export functions for unit testing
-module.exports = { compute, isNumeric };
+module.exports = { compute, isNumeric, modulo, power, squareRoot };
