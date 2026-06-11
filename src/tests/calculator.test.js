@@ -1,4 +1,4 @@
-const { compute, isNumeric } = require('../calculator');
+const { compute, isNumeric, modulo, power, squareRoot } = require('../calculator');
 
 describe('Calculator compute()', () => {
   test('adds numbers with + and add', () => {
@@ -26,14 +26,35 @@ describe('Calculator compute()', () => {
     expect(compute(10, 'mod', 3)).toBe(1);
   });
 
+  test('modulo example from image: 5 % 2', () => {
+    expect(compute('5', '%', '2')).toBe(1);
+    expect(modulo(5, 2)).toBe(1);
+  });
+
   test('exponentiation with ^ and pow', () => {
     expect(compute('2', '^', '3')).toBe(8);
     expect(compute(2, 'pow', 3)).toBe(8);
   });
 
+  test('power with negative exponent', () => {
+    expect(power(2, -3)).toBeCloseTo(0.125);
+    expect(compute(2, '^', -3)).toBeCloseTo(0.125);
+  });
+
   test('sqrt unary operation', () => {
     expect(compute('9', 'sqrt')).toBe(3);
     expect(compute(16, 'sqrt')).toBe(4);
+    expect(squareRoot(16)).toBe(4);
+  });
+
+  test('sqrt example from image: √16', () => {
+    expect(compute('16', 'sqrt')).toBe(4);
+    expect(squareRoot(16)).toBe(4);
+  });
+
+  test('throws on sqrt of negative number', () => {
+    expect(() => compute(-4, 'sqrt')).toThrow('Square root of negative number');
+    expect(() => squareRoot(-9)).toThrow('Square root of negative number');
   });
 
   test('handles floats and negative numbers', () => {
@@ -43,6 +64,11 @@ describe('Calculator compute()', () => {
 
   test('throws on division by zero', () => {
     expect(() => compute(1, '/', 0)).toThrow('Division by zero');
+  });
+
+  test('throws on modulo by zero', () => {
+    expect(() => compute(5, '%', 0)).toThrow('Modulo by zero');
+    expect(() => modulo(5, 0)).toThrow('Modulo by zero');
   });
 
   test('throws on unsupported operation', () => {
